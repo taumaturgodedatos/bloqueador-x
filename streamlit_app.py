@@ -15,7 +15,7 @@ Esta es una versión más fácil de utilizar 😉.
 """
 
 def get_list_of_followers(file, app):
-
+    #with st.spinner('Procesando cuentas ...'):  
     user_list = pd.read_csv(file).to_dict('records')
     print(user_list)
 
@@ -56,25 +56,27 @@ uploaded_file = st.file_uploader("A continuación cargue el listado de cuentas a
 user = st.text_input('USUARIO')
 password = st.text_input('CONTRASEÑA', type='password')
 
-def start_twitter(u, p, extra=None):
+def start_twitter(u, p):
     # Debemos chequear que no haya quedado guardado un archivo de sesión
     try:
         os.remove("session.tw_session")
     except:
         pass
 
-    if extra is not None:
-        print('EXTRA: ', extra)
-        app.start(u, p, extra)
-        print(app.user)
-        return app
+    try:
+        app = Twitter("session")
+        app.sign_in(u, p)
+        #print(app.user)
+        #return app
 
-    app = Twitter("session")
-    app.start(u, p)
-    print(app.user)
+    except ActionRequired as e:
+        print('EXTRA: ', e)
+        action = st.text_input(f"Action Required :> {str(e.message)} : ")
+        if action:
+            app.sign_in(u, p, action)
+            #return app
+
     return app
-
-
 
 def get_csv_of_followers(followers):
 
@@ -138,53 +140,54 @@ def bloquear_simple(users, user, password, app):
 def bloquear_seguidores(followers):
     pass
 
-def click_button(user, password):
+def log_user(user, password):
+    #with st.spinner('Logueando usuario ...'):
+    try:
+        app = start_twitter(user, password)
+    except Exception as e:
+        print(e)
+        st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
+        return
 
+    return app
+
+
+def click_button(user, password):
 
     if(user=="" or password==""):
         st.error('Usuario o contraseña vacios!', icon="🚨")
         return
 
-    with st.spinner('Logueando usuario ...'):
-        try:
-            app = start_twitter(user, password)
-        except ActionRequired as e:
-            print("===========>", e)
-            #st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
-            action= st.text_input(f"Action Required :> {str(e.message)} : ")
-            if st.button('Confirmar'):
-                app = start_twitter(user, password, action)
-            
-        except Exception as e:
-            print(e)
-            st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
-            return
+    try:
+        app = start_twitter(user, password)
+    except Exception as e:
+        st.write(e)
 
-    with st.spinner('Procesando cuentas ...'):  
+   
+    try:
+        print('estoy acà', app)
+        followers = get_list_of_followers(uploaded_file, app)
+    except:
+        st.error('No se encontró el archivo .csv. Asegurese de cargar un archivo con el formato adecuado!', icon="🚨")
+        return
 
-        try:  
-            followers = get_list_of_followers(uploaded_file, app)
-        except:
-            st.error('No se encontró el archivo .csv. Asegurese de cargar un archivo con el formato adecuado!', icon="🚨")
-            return
-
-        for user in followers:
-            st.write('##########################################################')
-            st.write(f"Total de seguidores del usuario: {user['User']}:")
-            st.write(f"{len(user['Follower list'])}")
+    for user in followers:
+        st.write('##########################################################')
+        st.write(f"Total de seguidores del usuario: {user['User']}:")
+        st.write(f"{len(user['Follower list'])}")
 
 
-        csv_2_export = get_csv_of_followers(followers)
+    csv_2_export = get_csv_of_followers(followers)
 
-        st.download_button(
-            "Descargar listado de seguidores",
-            csv_2_export,
-            "lista_seguidores_export.csv",
-            "text/csv",
-            key='download-csv'
-        )
+    st.download_button(
+        "Descargar listado de seguidores",
+        csv_2_export,
+        "lista_seguidores_export.csv",
+        "text/csv",
+        key='download-csv'
+    )
 
-        st.button('Bloquear cuentas del archivo inicial', on_click=bloquear_simple, args=(followers, user, password, app))
+    st.button('Bloquear cuentas del archivo inicial', on_click=bloquear_simple, args=(followers, user, password, app))
         #st.button('Bloquear seguidores (¡ojo!)', on_click=bloquear_seguidores, args=(followers, user, password))
 
 
