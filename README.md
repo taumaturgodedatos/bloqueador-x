@@ -7,7 +7,7 @@ de logueo son inusuales o sospechosos. Con suerte la cuenta se desbloquea autom�
 
 ## 📢 Usar APP con Streamlit Cloud
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)]()
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://bloqueador-x-w5k5gkcyxrgsr8mrfvdryt.streamlit.app/)
 
 ## 📝 Descripción
 
