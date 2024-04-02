@@ -18,6 +18,8 @@ def get_list_of_followers(file, app):
     print(file)
     #with st.spinner('Procesando cuentas ...'):  
     user_df = pd.read_csv(file)
+    file.seek(0)
+
     user_list = user_df.to_dict('records')
     print('list: ', user_list)
 
@@ -33,10 +35,12 @@ def get_list_of_followers(file, app):
 
     return follower_list
 
-def get_list_of_users(file, app):
+def get_list_of_users(file):
     print(file)
     #with st.spinner('Procesando cuentas ...'):  
     user_df = pd.read_csv(file)
+    file.seek(0)
+
     user_list = user_df.to_dict('records')
     print('list: ', user_list)
 
@@ -85,8 +89,10 @@ def start_twitter(u, p):
     except:
         pass
 
+    app = Twitter("session")
+
     try:
-        app = Twitter("session")
+        
         app.sign_in(u, p)
         #print(app.user)
         #return app
@@ -126,8 +132,15 @@ def bloquear_simple(users, user, password, app):
     success_block = []
     unsuccess_block = []
     errors_in_a_row = 0
+    try:
+        print(app.get_user_info('taumaturgo1411'))
+        print(app.get_user_info('nhiroooo'))
+        blocked_users = [i.id for i in app.get_blocked_users().users]
+    except Exception as e:
+        print(e)
+        return
 
-    blocked_users = [i.id for i in app.get_blocked_users().users]
+    print(blocked_users)
 
     for n, (k,v) in enumerate(blocklist.items()):
         if n%10 == 0:
@@ -184,12 +197,13 @@ def click_button(user, password):
         app = start_twitter(user, password)
     except Exception as e:
         st.write(e)
+        return
 
    
     try:
         print('estoy acà', app)
         followers = get_list_of_followers(uploaded_file, app)
-        users = get_list_of_users(uploaded_file, app)
+        users = get_list_of_users(uploaded_file)
     except Exception as e:
         print("Error in getting followers: ", e)
         st.error('No se encontró el archivo .csv. Asegurese de cargar un archivo con el formato adecuado!', icon="🚨")
