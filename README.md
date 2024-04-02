@@ -2,7 +2,7 @@
 
 Créditos e idea original: [@polariscopio](https://twitter.com/polariscopi0). Parte de este código fué adaptado a partir de su [trabajo](https://t.co/oaA5W8KlZm). La idea es facilitar la tarea a usuari@s mediante una interfaz amigable.
 
-**⚠️Use bajo su propia responsabilidad, a veces Twitter X puede bloquear el acceso a la propia cuenta porque considera que los intentos
+**⚠️Use la APP bajo su propia responsabilidad, a veces Twitter X puede bloquear el acceso a la propia cuenta porque considera que los intentos
 de logueo son inusuales o sospechosos. Con suerte la cuenta se desbloquea automáticamente pasado un tiempo (según las pruebas realizadas).**
 
 ## 📢 Usar APP con Streamlit Cloud
