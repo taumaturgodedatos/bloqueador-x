@@ -133,8 +133,6 @@ def bloquear_simple(users, user, password, app):
     unsuccess_block = []
     errors_in_a_row = 0
     try:
-        print(app.get_user_info('taumaturgo1411'))
-        print(app.get_user_info('nhiroooo'))
         blocked_users = [i.id for i in app.get_blocked_users().users]
     except Exception as e:
         print(e)
