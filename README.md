@@ -26,4 +26,4 @@ usuario3,id_usuario3
 **Notar que la primer fila (o línea) debe respetar los nombres: `usuario` y `id`.**
 **Notar que no hay espacios entre `usuario` e `id`**
 
-A modo de ejemplo puede usar el `.csv` de ejemplo que se encuentra [acá](https://github.com/taumaturgodedatos/bloqueador-lista-x/blob/main/example/blocklist.csv)
+A modo de ejemplo puede usar el `.csv` de ejemplo que se encuentra [acá](https://github.com/taumaturgodedatos/bloqueador-lista-x/blob/main/example/blocklist.csv). El archivo contiene las dos primeras cuentas del [listado original](https://raw.githubusercontent.com/pablofp92/Datasets/main/blocklist.json) confeccionado por *@polariscopio*.
