@@ -15,18 +15,40 @@ Esta es una versión más fácil de utilizar 😉.
 """
 
 def get_list_of_followers(file, app):
+    print(file)
     #with st.spinner('Procesando cuentas ...'):  
-    user_list = pd.read_csv(file).to_dict('records')
-    print(user_list)
+    user_df = pd.read_csv(file)
+    user_list = user_df.to_dict('records')
+    print('list: ', user_list)
 
     follower_list = []
-
     for user in user_list:
-        followers = app.get_user_followers(user['usuario'])
-        follower_list.append({'User': user, 'Follower list': followers})
+        print('==', user)
+        try:
+            followers = app.get_user_followers(user['usuario'])
+            follower_list.append({'User': user, 'Follower list': followers})
+        except Exception as e:
+            print(e)
+        
 
     return follower_list
 
+def get_list_of_users(file, app):
+    print(file)
+    #with st.spinner('Procesando cuentas ...'):  
+    user_df = pd.read_csv(file)
+    user_list = user_df.to_dict('records')
+    print('list: ', user_list)
+
+    users_list = []
+    for user in user_list:
+        print('==', user)
+        try:
+            users_list.append({'User': user})
+        except Exception as e:
+            print(e)
+
+    return users_list
 
 
 """
@@ -96,7 +118,7 @@ def bloquear_simple(users, user, password, app):
 
     blocklist = {x['User']['usuario']: x['User']['id'] for x in users}
 
-    print(blocklist)
+    print('BLOCKLIST: ', blocklist)
 
     TIME = 2
     large_wait = TIME*60
@@ -167,7 +189,9 @@ def click_button(user, password):
     try:
         print('estoy acà', app)
         followers = get_list_of_followers(uploaded_file, app)
-    except:
+        users = get_list_of_users(uploaded_file, app)
+    except Exception as e:
+        print("Error in getting followers: ", e)
         st.error('No se encontró el archivo .csv. Asegurese de cargar un archivo con el formato adecuado!', icon="🚨")
         return
 
@@ -187,8 +211,8 @@ def click_button(user, password):
         key='download-csv'
     )
 
-    st.button('Bloquear cuentas del archivo inicial', on_click=bloquear_simple, args=(followers, user, password, app))
-        #st.button('Bloquear seguidores (¡ojo!)', on_click=bloquear_seguidores, args=(followers, user, password))
+    st.button('Bloquear cuentas del archivo inicial', on_click=bloquear_simple, args=(users, user, password, app))
+    #st.button('Bloquear seguidores (¡ojo!)', on_click=bloquear_seguidores, args=(followers, user, password))
 
 
 
