@@ -56,15 +56,21 @@ uploaded_file = st.file_uploader("A continuación cargue el listado de cuentas a
 user = st.text_input('USUARIO')
 password = st.text_input('CONTRASEÑA', type='password')
 
-def start_twitter(u, p):
+def start_twitter(u, p, extra=None):
     # Debemos chequear que no haya quedado guardado un archivo de sesión
     try:
         os.remove("session.tw_session")
     except:
         pass
 
+    if extra is not None:
+        print('EXTRA: ', extra)
+        app.start(u, p, extra)
+        print(app.user)
+        return app
+
     app = Twitter("session")
-    app.sign_in(u, p)
+    app.start(u, p)
     print(app.user)
     return app
 
@@ -134,7 +140,6 @@ def bloquear_seguidores(followers):
 
 def click_button(user, password):
 
-    print(user, password)
 
     if(user=="" or password==""):
         st.error('Usuario o contraseña vacios!', icon="🚨")
@@ -144,9 +149,14 @@ def click_button(user, password):
         try:
             app = start_twitter(user, password)
         except ActionRequired as e:
-            st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
-            return
-        except:
+            print("===========>", e)
+            #st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
+            action= st.text_input(f"Action Required :> {str(e.message)} : ")
+            if st.button('Confirmar'):
+                app = start_twitter(user, password, action)
+            
+        except Exception as e:
+            print(e)
             st.error('No se pudo loguear, revise usuario y/o contraseña!', icon="🚨")
             return
 
