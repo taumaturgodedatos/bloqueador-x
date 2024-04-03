@@ -82,23 +82,23 @@ uploaded_file = st.file_uploader("A continuación cargue el listado de cuentas a
 user = st.text_input('USUARIO')
 password = st.text_input('CONTRASEÑA', type='password')
 
-def clear_session():
+def clear_session(sesname):
     try:
-        os.remove("session.tw_session")
+        os.remove(f"{sesname}.tw_session")
     except:
         pass
 
 
 def start_twitter(u, p):
     # Debemos chequear que no haya quedado guardado un archivo de sesión
-    clear_session()
+    clear_session(u)
 
-    app = Twitter("session")
+    app = Twitter(u)
 
     try:
         
         app.start(u, p)
-        clear_session()
+        clear_session(u)
         #print(app.user)
         return app
 
@@ -110,7 +110,7 @@ def start_twitter(u, p):
 
         if confirmar and accion:
             app.start(u, p, extra=accion)
-            clear_session()
+            clear_session(u)
             return app
 
     #return app
