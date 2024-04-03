@@ -82,29 +82,38 @@ uploaded_file = st.file_uploader("A continuación cargue el listado de cuentas a
 user = st.text_input('USUARIO')
 password = st.text_input('CONTRASEÑA', type='password')
 
-def start_twitter(u, p):
-    # Debemos chequear que no haya quedado guardado un archivo de sesión
+def clear_session():
     try:
         os.remove("session.tw_session")
     except:
         pass
 
+
+def start_twitter(u, p):
+    # Debemos chequear que no haya quedado guardado un archivo de sesión
+    clear_session()
+
     app = Twitter("session")
 
     try:
         
-        app.sign_in(u, p)
+        app.start(u, p)
+        clear_session()
         #print(app.user)
-        #return app
+        return app
 
     except ActionRequired as e:
         print('EXTRA: ', e)
-        action = st.text_input(f"Action Required :> {str(e.message)} : ")
-        if action:
-            app.sign_in(u, p, action)
-            #return app
+        accion = st.text_input(f"Action Required :> {str(e.message)} : ")
+        confirmar = st.button('Confirmar')
+        #action = input(f"Action Required :> {str(e.message)} : ")
 
-    return app
+        if confirmar and accion:
+            app.start(u, p, extra=accion)
+            clear_session()
+            return app
+
+    #return app
 
 def get_csv_of_followers(followers):
 
@@ -132,6 +141,7 @@ def bloquear_simple(users, user, password, app):
     success_block = []
     unsuccess_block = []
     errors_in_a_row = 0
+
     try:
         blocked_users = [i.id for i in app.get_blocked_users().users]
     except Exception as e:
@@ -157,11 +167,13 @@ def bloquear_simple(users, user, password, app):
             continue
         try:
             app.block_user(f"{v}")
-            print(f"{n}/{len(blocklist)}: {k} bloqueado correctamente")
+            #print(f"{n}/{len(blocklist)}: {k} bloqueado correctamente")
+            st.write(f"{n}/{len(blocklist)}: {k} bloqueado correctamente")
             success_block.append(v)
             errors_in_a_row = 0
         except:
-            print(f"{n}/{len(blocklist)}: {k} no pudo ser bloqueado")
+            #print(f"{n}/{len(blocklist)}: {k} no pudo ser bloqueado")
+            st.write(f"{n}/{len(blocklist)}: {k} no pudo ser bloqueado")
             time.sleep(TIME)
             unsuccess_block.append(v)
             errors_in_a_row += 1
@@ -227,10 +239,48 @@ def click_button(user, password):
     #st.button('Bloquear seguidores (¡ojo!)', on_click=bloquear_seguidores, args=(followers, user, password))
 
 
+def conectar(user, password):
+    if(user=="" or password==""):
+        st.error('Usuario o contraseña vacios!', icon="🚨")
+        return
 
-st.button('Procesar listado', on_click=click_button, args=(user, password))
+    try:
+        app = start_twitter(user, password)
+    except Exception as e:
+        st.write(e)
+        return
 
 
+if st.button('Conectar cuenta'):
+    app = start_twitter(user, password)
+    try:
+        print('estoy acà', app)
+        followers = get_list_of_followers(uploaded_file, app)
+        users = get_list_of_users(uploaded_file)
+
+        for user in followers:
+            st.write('##########################################################')
+            st.write(f"Total de seguidores del usuario: {user['User']}:")
+            st.write(f"{len(user['Follower list'])}")
+
+
+        csv_2_export = get_csv_of_followers(followers)
+
+        st.download_button(
+            "Descargar listado de seguidores",
+            csv_2_export,
+            "lista_seguidores_export.csv",
+            "text/csv",
+            key='download-csv'
+        )
+
+        st.button('Bloquear cuentas del archivo inicial', on_click=bloquear_simple, args=(users, user, password, app))
+
+    except Exception as e:
+        print("Error in getting followers: ", e)
+        st.error('No se encontró el archivo .csv. Asegurese de cargar un archivo con el formato adecuado!', icon="🚨")
+
+    
 
 
 
